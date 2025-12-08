@@ -1,4 +1,4 @@
-FROM gradle:9.2.1-jdk
+FROM gradle:9.2.1
 
 WORKDIR /app
 
