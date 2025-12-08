@@ -9,13 +9,17 @@ public class App {
     public static void main(String[] args) {
         var app = getApp();
 
-        app.start();
+        app.start(getPort());
     }
 
     public static Javalin getApp() {
 
         return Javalin.create()
-                .get("/", ctx -> ctx.result("Hello World"))
-                .start(7070);
+                .get("/", ctx -> ctx.result("Hello World"));
+    }
+
+    private static int getPort() {
+        String port = System.getenv().getOrDefault("PORT", "7070");
+        return Integer.valueOf(port);
     }
 }
