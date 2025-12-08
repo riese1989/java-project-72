@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk
+FROM gradle:9.2.1-jdk
 
 WORKDIR /app
 
