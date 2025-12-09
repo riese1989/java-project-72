@@ -23,9 +23,8 @@ public class App {
     }
 
     public static Javalin getApp() throws IOException, SQLException {
-        System.out.println(System.getenv());
         var hikariConfig = new HikariConfig();
-        var dbUrl = System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project");
+        var dbUrl = getDbUrl();
 
         hikariConfig.setJdbcUrl(dbUrl);
         hikariConfig.setDriverClassName("org.postgresql.Driver");
@@ -56,9 +55,24 @@ public class App {
     }
 
     private static int getPort() {
-        String port = System.getenv().getOrDefault("DB_PORT", "7070");
+        String port = System.getenv().getOrDefault("PORT", "7070");
 
-        return Integer.valueOf(port);
+        return Integer.parseInt(port);
+    }
+    
+    private static String getDbUrl() {
+        var settingsMap = System.getenv();
+        var baseUrl = settingsMap.get("JDBC_DATABASE_URL");
+
+        if (baseUrl == null) {
+            return "jdbc:h2:mem:project";
+        }
+
+        return baseUrl.replaceAll("\\{DATABASE}", settingsMap.get("DATABASE"))
+                .replaceAll("\\{DB_PORT}", settingsMap.get("DB_PORT"))
+                .replaceAll("\\{HOST}", settingsMap.get("HOST"))
+                .replaceAll("\\{PASSWOD}", settingsMap.get("PASSWORD"))
+                .replaceAll("\\{USERNAME}", settingsMap.get("USERNAME"));
     }
 
     private static String readResourceFile(String fileName) throws IOException {
