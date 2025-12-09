@@ -2,7 +2,9 @@ FROM eclipse-temurin:20-jdk
 
 WORKDIR /app
 
-COPY /. .
+COPY / .
+
+RUN chmod +x ./gradlew
 
 RUN ./gradlew --no-daemon build
 
