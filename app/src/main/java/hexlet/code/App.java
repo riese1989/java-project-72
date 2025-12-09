@@ -23,13 +23,12 @@ public class App {
     }
 
     public static Javalin getApp() throws IOException, SQLException {
-        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++");
         System.out.println(System.getenv());
-        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++");
         var hikariConfig = new HikariConfig();
         var dbUrl = System.getenv().getOrDefault("JDBC_DATABASE_URL", "jdbc:h2:mem:project");
 
         hikariConfig.setJdbcUrl(dbUrl);
+        hikariConfig.setDriverClassName("org.postgresql.Driver");
 
         var dataSource = new HikariDataSource(hikariConfig);
         var sql = readResourceFile("schema.sql");
