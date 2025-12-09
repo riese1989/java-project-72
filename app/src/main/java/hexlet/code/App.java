@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import hexlet.code.repositories.BaseRepository;
 import io.javalin.Javalin;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringSubstitutor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -59,20 +60,16 @@ public class App {
 
         return Integer.parseInt(port);
     }
-    
+
     private static String getDbUrl() {
         var settingsMap = System.getenv();
-        var baseUrl = settingsMap.get("JDBC_DATABASE_URL");
+        var templateUrl = settingsMap.get("JDBC_DATABASE_URL");
 
-        if (baseUrl == null) {
+        if (templateUrl == null) {
             return "jdbc:h2:mem:project";
         }
 
-        return baseUrl.replaceAll("\\{DATABASE}", settingsMap.get("DATABASE"))
-                .replaceAll("\\{DB_PORT}", settingsMap.get("DB_PORT"))
-                .replaceAll("\\{HOST}", settingsMap.get("HOST"))
-                .replaceAll("\\{PASSWOD}", settingsMap.get("PASSWORD"))
-                .replaceAll("\\{USERNAME}", settingsMap.get("USERNAME"));
+        return StringSubstitutor.replace(templateUrl, settingsMap);
     }
 
     private static String readResourceFile(String fileName) throws IOException {
