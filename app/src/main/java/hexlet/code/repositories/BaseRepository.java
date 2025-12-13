@@ -1,11 +1,9 @@
 package hexlet.code.repositories;
 
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.Setter;
 
 public class BaseRepository {
-    private static HikariDataSource hikariDataSource;
-
-    public static void setDataSource(HikariDataSource dataSource) {
-        hikariDataSource = dataSource;
-    }
+    @Setter
+    static HikariDataSource dataSource;
 }
