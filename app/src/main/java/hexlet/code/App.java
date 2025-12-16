@@ -6,13 +6,9 @@ import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.ResourceCodeResolver;
 import hexlet.code.controllers.UrlController;
-import hexlet.code.dto.urls.UrlsPage;
-import hexlet.code.models.MessageRecord;
-import hexlet.code.models.URL;
 import hexlet.code.repositories.BaseRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
-import io.javalin.http.HttpStatus;
 import io.javalin.rendering.template.JavalinJte;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringSubstitutor;
@@ -20,9 +16,6 @@ import org.apache.commons.text.StringSubstitutor;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
@@ -40,10 +33,17 @@ public class App {
 
     public static Javalin getApp() throws IOException, SQLException {
         var hikariConfig = new HikariConfig();
-        var dbUrl = getDbUrl();
+        var settingsMap = System.getenv();
 
-        hikariConfig.setJdbcUrl(dbUrl);
-        hikariConfig.setDriverClassName("org.postgresql.Driver");
+        var templateUrl = settingsMap.get("JDBC_DATABASE_URL");
+
+        if (templateUrl == null) {
+            hikariConfig.setJdbcUrl("jdbc:h2:mem:project");
+            hikariConfig.setDriverClassName("org.h2.Driver");
+        } else {
+            hikariConfig.setJdbcUrl(StringSubstitutor.replace(templateUrl, settingsMap));
+            hikariConfig.setDriverClassName("org.postgresql.Driver");
+        }
 
         var dataSource = new HikariDataSource(hikariConfig);
         var sql = readResourceFile("sql/schema.sql");
@@ -66,42 +66,11 @@ public class App {
             ctx.contentType("text/html; charset=utf-8");
         });
 
-        app.get("/", ctx -> ctx.render("index.jte", model("page")));
-        app.post(NamedRoutes.urlsPath(), ctx -> {
-            var inputUrl = ctx.formParam("url");
-            var domainWithProtocolAndPort = extractDomainWithProtocolAndPort(inputUrl);
-            var url = new URL(domainWithProtocolAndPort);
-            MessageRecord messageRecord;
-
-            try {
-                UrlController.create(url);
-                messageRecord = MessageRecord.OK;
-            }
-            catch (Exception ex) {
-                messageRecord = MessageRecord.NOT;
-            }
-
-            ctx.sessionAttribute("flash_message_id", messageRecord.getId());
-            ctx.sessionAttribute("flash_message_text", messageRecord.getMessage());
-
-            ctx.render("urls.jte", model("page", UrlsPage.builder().messageRecord(messageRecord)));
-        });
+        app.get("/", ctx -> ctx.render("index.jte"));
+        app.post(NamedRoutes.urlsPath(), UrlController::create);
+        app.get(NamedRoutes.urlsPath(), UrlController::showAll);
 
         return app;
-    }
-
-    private static String extractDomainWithProtocolAndPort(String inputUrl) throws URISyntaxException, MalformedURLException {
-        var uri = new URI(inputUrl);
-        var url = uri.toURL();
-        var protocol = url.getProtocol();
-        var host = url.getHost();
-        int port = url.getPort();
-
-        if (port == -1) {
-            return protocol + "://" + host;
-        }
-
-        return protocol + "://" + host + ":" + port;
     }
 
     private static int getPort() {

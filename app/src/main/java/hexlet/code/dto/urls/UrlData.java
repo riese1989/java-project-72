@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -12,6 +12,6 @@ import java.time.LocalDateTime;
 public class UrlData {
     private Integer id;
     private String nameUrl;
-    private LocalDateTime lastCheck;
+    private Timestamp lastCheck;
     private Integer codeAnswer;
 }
