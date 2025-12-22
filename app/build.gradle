@@ -4,6 +4,7 @@ plugins {
     id("io.freefair.lombok") version "9.1.0"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id 'gg.jte.gradle' version '3.2.1'
+    id 'org.sonarqube' version '7.2.2.6593'
 }
 
 group = 'hexlet.code'
@@ -39,4 +40,11 @@ jte {
     sourceDirectory = file("src/main/resources/templates").toPath()
 
     precompile()
+}
+
+sonar {
+    properties {
+        property "sonar.projectKey", "riese1989_java-project-72"
+        property "sonar.organization", "riese1989"
+    }
 }
