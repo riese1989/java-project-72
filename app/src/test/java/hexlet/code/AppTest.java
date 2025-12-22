@@ -64,7 +64,7 @@ class AppTest {
     @Test
     @DisplayName("Добавление нового URL, когда таблица не пустая")
     public void addUrlNonEmptyDbTest() throws SQLException {
-        var url = new URL("https://habr.com/ru/articles/875816/");
+        var url = new URL("https://habr.com");
 
         UrlRepository.save(url);
 
@@ -91,7 +91,7 @@ class AppTest {
         assertEquals(1, urls.get(0).getId());
         assertEquals("https://habr.com", urls.get(0).getName());
         assertEquals(2, urls.get(1).getId());
-        assertEquals("https://gitverse.ru", urls.get(0).getName());
+        assertEquals("https://gitverse.ru", urls.get(1).getName());
     }
 
     @Test
