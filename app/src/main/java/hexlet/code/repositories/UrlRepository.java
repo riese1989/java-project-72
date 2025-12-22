@@ -32,4 +32,15 @@ public class UrlRepository extends BaseRepository {
     public static List<URL> showAll() {
         return urls;
     }
+
+    public static void truncate() throws SQLException {
+        var sql = "TRUNCATE TABLE urls";
+
+        try (var conn = dataSource.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+            preparedStatement.executeUpdate();
+        }
+
+        urls.clear();
+    }
 }

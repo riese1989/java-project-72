@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public enum MessageRecord {
     OK(1, "Страница успешно добавлена"),
-    NOT(2, "Страница уже существует");
+    PAGE_EXISTS(2, "Страница уже существует");
 
     private final int id;
     private final String message;

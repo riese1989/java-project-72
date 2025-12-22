@@ -20,12 +20,12 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.stream.Collectors;
 
-import static io.javalin.rendering.template.TemplateUtil.model;
+import static gg.jte.ContentType.Html;
 
 @Slf4j
-public class App {
+public final class App {
 
-    public static void main(String[] args) throws SQLException, IOException {
+    public static void main(final String[] args) throws SQLException, IOException {
         var app = getApp();
 
         app.start(getPort());
@@ -41,14 +41,14 @@ public class App {
             hikariConfig.setJdbcUrl("jdbc:h2:mem:project");
             hikariConfig.setDriverClassName("org.h2.Driver");
         } else {
-            hikariConfig.setJdbcUrl(StringSubstitutor.replace(templateUrl, settingsMap));
+            hikariConfig.setJdbcUrl(
+                    StringSubstitutor.replace(templateUrl, settingsMap)
+            );
             hikariConfig.setDriverClassName("org.postgresql.Driver");
         }
 
         var dataSource = new HikariDataSource(hikariConfig);
         var sql = readResourceFile("sql/schema.sql");
-
-        log.info(sql);
 
         try (var connection = dataSource.getConnection();
              var statement = connection.createStatement()) {
@@ -79,20 +79,13 @@ public class App {
         return Integer.parseInt(port);
     }
 
-    private static String getDbUrl() {
-        var settingsMap = System.getenv();
-        var templateUrl = settingsMap.get("JDBC_DATABASE_URL");
-
-        if (templateUrl == null) {
-            return "jdbc:h2:mem:project";
-        }
-
-        return StringSubstitutor.replace(templateUrl, settingsMap);
-    }
-
-    private static String readResourceFile(String fileName) throws IOException {
-        var inputStream = App.class.getClassLoader().getResourceAsStream(fileName);
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+    private static String readResourceFile(final String fileName)
+            throws IOException {
+        var inputStream = App.class.getClassLoader()
+                .getResourceAsStream(fileName);
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+        ) {
             return reader.lines().collect(Collectors.joining("\n"));
         }
     }
@@ -100,7 +93,7 @@ public class App {
     private static TemplateEngine createTemplateEngine() {
         var classLoader = App.class.getClassLoader();
         var codeResolver = new ResourceCodeResolver("templates", classLoader);
-        var templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
+        var templateEngine = TemplateEngine.create(codeResolver, Html);
 
         return templateEngine;
     }

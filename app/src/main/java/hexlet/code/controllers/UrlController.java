@@ -6,6 +6,7 @@ import hexlet.code.models.MessageRecord;
 import hexlet.code.models.URL;
 import hexlet.code.repositories.UrlRepository;
 import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -17,9 +18,10 @@ import java.util.List;
 import static io.javalin.rendering.template.TemplateUtil.model;
 
 public final class UrlController {
-    public static void create(Context ctx) throws MalformedURLException, URISyntaxException {
+    public static void create(final Context ctx)
+            throws MalformedURLException, URISyntaxException {
         var inputUrl = ctx.formParam("url");
-        var domainWithProtocolAndPort = extractDomainWithProtocolAndPort(inputUrl);
+        var domainWithProtocolAndPort = getShortenUrl(inputUrl);
         var url = new URL(domainWithProtocolAndPort);
         MessageRecord messageRecord;
 
@@ -29,7 +31,7 @@ public final class UrlController {
             messageRecord = MessageRecord.OK;
         }
         catch (Exception ex) {
-            messageRecord = MessageRecord.NOT;
+            messageRecord = MessageRecord.PAGE_EXISTS;
         }
 
         List<UrlData> urlDataList = UrlRepository.showAll().stream()
@@ -37,27 +39,36 @@ public final class UrlController {
                         urlData.getId().intValue(),
                         urlData.getName(),
                         Timestamp.valueOf(LocalDateTime.now()),
-                        200 // Пример кода ответа, можно заменить на реальное значение
+                        HttpStatus.OK.getCode()
                 ))
                 .toList();
 
-        ctx.render("urls.jte", model("page", UrlsPage.builder().messageRecord(messageRecord).data(urlDataList).build()));
+        ctx.render("urls.jte",
+                model("page",
+                        UrlsPage.builder()
+                                .messageRecord(messageRecord)
+                                .data(urlDataList)
+                                .build()));
     }
 
-    public static void showAll(Context ctx) {
+    public static void showAll(final Context ctx) {
         List<UrlData> urlDataList = UrlRepository.showAll().stream()
                 .map(urlData -> new UrlData(
                         urlData.getId().intValue(),
                         urlData.getName(),
                         urlData.getCreatedAt(),
-                        200 // Пример кода ответа, можно заменить на реальное значение
+                        HttpStatus.OK.getCode()
                 ))
                 .toList();
 
-        ctx.render("urls.jte", model("page", UrlsPage.builder().data(urlDataList).build()));
+        ctx.render("urls.jte", model("page",
+                UrlsPage.builder()
+                        .data(urlDataList)
+                        .build()));
     }
 
-    private static String extractDomainWithProtocolAndPort(String inputUrl) throws URISyntaxException, MalformedURLException {
+    private static String getShortenUrl(final String inputUrl)
+            throws URISyntaxException, MalformedURLException {
         var uri = new URI(inputUrl);
         var url = uri.toURL();
         var protocol = url.getProtocol();
