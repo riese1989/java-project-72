@@ -1,4 +1,5 @@
 @import hexlet.code.dto.urls.UrlsPage
+@import hexlet.code.util.NamedRoutes
 @param UrlsPage page
 
 @template.layout.page(
@@ -33,9 +34,8 @@ content = @`
             @for (var urlData : page.getData())
                <tr>
                    <td>${urlData.getId()}</td>
-                   <td>${urlData.getNameUrl()}</td>
+                   <td><a href="${NamedRoutes.urlDataPath(urlData.getId())}">${urlData.getNameUrl()}</a></td>
                    <td>${String.valueOf(urlData.getLastCheck())}</td>
-                   <td>${urlData.getCodeAnswer()}</td>
                </tr>
             @endfor
             </tbody>

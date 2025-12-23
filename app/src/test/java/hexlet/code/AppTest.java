@@ -1,7 +1,7 @@
 package hexlet.code;
 
 import hexlet.code.models.MessageRecord;
-import hexlet.code.models.URL;
+import hexlet.code.models.Url;
 import hexlet.code.repositories.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
@@ -64,7 +64,7 @@ class AppTest {
     @Test
     @DisplayName("Добавление нового URL, когда таблица не пустая")
     public void addUrlNonEmptyDbTest() throws SQLException {
-        var url = new URL("https://habr.com");
+        var url = Url.builder().name("https://habr.com").build();
 
         UrlRepository.save(url);
 
@@ -97,7 +97,7 @@ class AppTest {
     @Test
     @DisplayName("Добавление нового URL, когда таблица не пустая")
     public void addUrlErrorDbTest() throws SQLException {
-        var url = new URL("https://gitverse.ru");
+        var url = Url.builder().name("https://gitverse.ru").build();
 
         UrlRepository.save(url);
 

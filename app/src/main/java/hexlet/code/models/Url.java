@@ -1,22 +1,18 @@
 package hexlet.code.models;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @ToString
-public final class URL {
+public final class Url {
     private Long id;
     private String name;
     private Timestamp createdAt;
-
-    public URL(String name) {
-        this.name = name;
-        this.createdAt = Timestamp.valueOf(LocalDateTime.now());
-    }
 }

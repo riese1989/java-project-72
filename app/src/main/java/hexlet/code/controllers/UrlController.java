@@ -3,16 +3,13 @@ package hexlet.code.controllers;
 import hexlet.code.dto.urls.UrlData;
 import hexlet.code.dto.urls.UrlsPage;
 import hexlet.code.models.MessageRecord;
-import hexlet.code.models.URL;
+import hexlet.code.models.Url;
 import hexlet.code.repositories.UrlRepository;
 import io.javalin.http.Context;
-import io.javalin.http.HttpStatus;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static io.javalin.rendering.template.TemplateUtil.model;
@@ -22,7 +19,8 @@ public final class UrlController {
             throws MalformedURLException, URISyntaxException {
         var inputUrl = ctx.formParam("url");
         var domainWithProtocolAndPort = getShortenUrl(inputUrl);
-        var url = new URL(domainWithProtocolAndPort);
+        var url = Url.builder().name(domainWithProtocolAndPort).build();
+
         MessageRecord messageRecord;
 
         try {
@@ -35,12 +33,11 @@ public final class UrlController {
         }
 
         List<UrlData> urlDataList = UrlRepository.showAll().stream()
-                .map(urlData -> new UrlData(
-                        urlData.getId().intValue(),
-                        urlData.getName(),
-                        Timestamp.valueOf(LocalDateTime.now()),
-                        HttpStatus.OK.getCode()
-                ))
+                .map(urlData -> UrlData.builder()
+                        .id(urlData.getId())
+                        .nameUrl(urlData.getName())
+                        .build()
+                )
                 .toList();
 
         ctx.render("urls.jte",
@@ -53,12 +50,11 @@ public final class UrlController {
 
     public static void showAll(final Context ctx) {
         List<UrlData> urlDataList = UrlRepository.showAll().stream()
-                .map(urlData -> new UrlData(
-                        urlData.getId().intValue(),
-                        urlData.getName(),
-                        urlData.getCreatedAt(),
-                        HttpStatus.OK.getCode()
-                ))
+                .map(urlData -> UrlData.builder()
+                        .id(urlData.getId())
+                        .nameUrl(urlData.getName())
+                        .build()
+                )
                 .toList();
 
         ctx.render("urls.jte", model("page",
