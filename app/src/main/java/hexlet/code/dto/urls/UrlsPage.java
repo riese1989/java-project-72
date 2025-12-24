@@ -10,5 +10,5 @@ import java.util.List;
 @Getter
 public class UrlsPage {
     private MessageRecord messageRecord;
-    private List<UrlData> data;
+    private List<UrlDataDto> data;
 }

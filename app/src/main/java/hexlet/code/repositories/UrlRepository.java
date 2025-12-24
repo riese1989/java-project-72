@@ -1,21 +1,26 @@
 package hexlet.code.repositories;
 
 import hexlet.code.models.Url;
+import hexlet.code.models.UrlCheck;
+import lombok.Getter;
 
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
-public class UrlRepository extends BaseRepository {
-    private static List<Url> urls = new LinkedList<>();
+public class UrlRepository extends BaseRepository<Url> {
+    @Getter
+    private static List<Url> data = new ArrayList<>();
 
     public static void save(Url url) throws SQLException {
-        var sql = "INSERT INTO urls (name) VALUES (?)";
+        var sql = "INSERT INTO urls (name, created_at) VALUES (?, ?)";
+
         try (var conn = dataSource.getConnection();
              var preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setString(1, url.getName());
+            preparedStatement.setTimestamp(2, url.getCreatedAt());
             preparedStatement.executeUpdate();
 
             try (var generatedKeys = preparedStatement.getGeneratedKeys()) {
@@ -25,21 +30,17 @@ public class UrlRepository extends BaseRepository {
             }
         }
 
-        urls.add(url);
-    }
-
-    public static List<Url> showAll() {
-        return urls;
+        data.add(url);
     }
 
     public static void truncate() throws SQLException {
-        var sql = "TRUNCATE TABLE urls";
+        var sql = "DELETE FROM urls";
 
         try (var conn = dataSource.getConnection();
              var preparedStatement = conn.prepareStatement(sql)) {
             preparedStatement.executeUpdate();
         }
 
-        urls.clear();
+        data.clear();
     }
 }

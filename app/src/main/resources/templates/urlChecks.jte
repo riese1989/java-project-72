@@ -23,30 +23,34 @@ content = @`
             </tr>
             </tbody>
         </table>
-            <h2 class="mt-5">Проверки</h2>
-            <form method="post" action="${NamedRoutes.checkUrlPath(page.getId())}">
-                <button type="submit" class="btn btn-primary">Запустить проверку</button>
-            </form>
-        <table class = "table table-bordered table-hover mt-3">
+        <h2 class="mt-5">Проверки</h2>
+        <form method="post" action="${NamedRoutes.checkUrlPath(page.getId())}">
+            <button type="submit" class="btn btn-primary">Запустить проверку</button>
+        </form>
+        <table class="table table-bordered table-hover mt-3">
             <thead>
-            <tr><th>ID</th>
+            <tr>
+                <th>ID</th>
                 <th>Код ответа</th>
                 <th>title</th>
                 <th>h1</th>
                 <th>description</th>
                 <th>Дата проверки</th>
-            </tr></thead>
+            </tr>
+            </thead>
             <tbody>
-            @for (var check : page.getChecks())
-               <tr>
-                   <td>${check.getId()}</td>
-                   <td>${check.getCodeAnswer()}</td>
-                   <td>${check.getTitle()}</td>
-                   <td>${check.getH1()}</td>
-                   <td>${check.getDescription()}</td>
-                   <td>${String.valueOf(check.getDateCheck())}</td>
-               </tr>
-            @endfor
+            @if(page.getChecks() != null)
+                @for (var check : page.getChecks())
+                    <tr>
+                        <td>${check.getId()}</td>
+                        <td>${check.getCodeAnswer()}</td>
+                        <td>${check.getTitle()}</td>
+                        <td>${check.getH1()}</td>
+                        <td>${check.getDescription()}</td>
+                        <td>${String.valueOf(check.getDateCheck())}</td>
+                    </tr>
+                @endfor
+            @endif
             </tbody>
         </table>
     </div>

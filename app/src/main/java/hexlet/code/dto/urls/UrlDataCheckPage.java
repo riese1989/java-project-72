@@ -12,5 +12,5 @@ public class UrlDataCheckPage {
     private Long id;
     private String name;
     private Timestamp createdAt;
-    private List<UrlCheck> checks;
+    private List<UrlCheckDto> checks;
 }

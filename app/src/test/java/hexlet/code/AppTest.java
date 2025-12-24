@@ -12,17 +12,20 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AppTest {
     private Javalin app;
+    private UrlRepository urlRepo = new UrlRepository();
 
     @BeforeEach
     public final void setUp() throws SQLException, IOException {
         app = App.getApp();
-        UrlRepository.truncate();
+        urlRepo.truncate();
     }
 
     @Test
@@ -49,11 +52,11 @@ class AppTest {
             var body = response.body().string();
 
             assertThat(body).contains("<td>1</td>");
-            assertThat(body).contains("<td>https://gitverse.ru</td>");
+            assertThat(body).contains("<td><a href=\"/urls/1\">https://gitverse.ru</a></td>");
             assertThat(body).contains(MessageRecord.OK.getMessage());
         });
 
-        var urls = UrlRepository.showAll();
+        var urls = urlRepo.getData();
 
         assertEquals(1, urls.size());
 
@@ -64,9 +67,9 @@ class AppTest {
     @Test
     @DisplayName("Добавление нового URL, когда таблица не пустая")
     public void addUrlNonEmptyDbTest() throws SQLException {
-        var url = Url.builder().name("https://habr.com").build();
+        var url = Url.builder().name("https://habr.com").createdAt(Timestamp.valueOf(LocalDateTime.now())).build();
 
-        UrlRepository.save(url);
+        urlRepo.save(url);
 
         var requestBody = "url=https://gitverse.ru/features/gigacode/install/";
 
@@ -84,7 +87,7 @@ class AppTest {
             assertThat(body).contains(MessageRecord.OK.getMessage());
         });
 
-        var urls = UrlRepository.showAll();
+        var urls = urlRepo.getData();
 
         assertEquals(2, urls.size());
 
@@ -97,9 +100,9 @@ class AppTest {
     @Test
     @DisplayName("Добавление нового URL, когда таблица не пустая")
     public void addUrlErrorDbTest() throws SQLException {
-        var url = Url.builder().name("https://gitverse.ru").build();
+        var url = Url.builder().name("https://gitverse.ru").createdAt(Timestamp.valueOf(LocalDateTime.now())).build();
 
-        UrlRepository.save(url);
+        urlRepo.save(url);
 
         var requestBody = "url=https://gitverse.ru/features/gigacode/install/";
 
@@ -115,7 +118,7 @@ class AppTest {
             assertThat(body).contains(MessageRecord.PAGE_EXISTS.getMessage());
         });
 
-        var urls = UrlRepository.showAll();
+        var urls = urlRepo.getData();
 
         assertEquals(1, urls.size());
 

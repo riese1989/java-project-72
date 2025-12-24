@@ -3,7 +3,7 @@ package hexlet.code.repositories;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.Setter;
 
-public class BaseRepository {
+public abstract class BaseRepository<T> {
     @Setter
     static HikariDataSource dataSource;
 }

@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 @ToString
 public final class UrlCheck {
     private Long id;
-    private Long statusCode;
+    private Integer statusCode;
     private String title;
     private String h1;
     private String description;

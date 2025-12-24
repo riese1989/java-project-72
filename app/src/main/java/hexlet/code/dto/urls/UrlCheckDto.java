@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 
 @Builder
 @Getter
-public class UrlCheck {
+public class UrlCheckDto {
     private Long id;
     private Integer codeAnswer;
     private String title;

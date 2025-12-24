@@ -32,11 +32,17 @@ content = @`
             </thead>
             <tbody>
             @for (var urlData : page.getData())
-               <tr>
-                   <td>${urlData.getId()}</td>
-                   <td><a href="${NamedRoutes.urlDataPath(urlData.getId())}">${urlData.getNameUrl()}</a></td>
-                   <td>${String.valueOf(urlData.getLastCheck())}</td>
-               </tr>
+                <tr>
+                    <td>${urlData.getId()}</td>
+                    <td><a href="${NamedRoutes.urlDataPath(urlData.getId())}">${urlData.getNameUrl()}</a></td>
+                    @if(urlData.getUrlCheckDto() != null)
+                        <td>${String.valueOf(urlData.getUrlCheckDto().getDateCheck())}</td>
+                        <td>${String.valueOf(urlData.getUrlCheckDto().getCodeAnswer())}</td>
+                    @else
+                        <td></td>
+                        <td></td>
+                    @endif
+                </tr>
             @endfor
             </tbody>
         </table>

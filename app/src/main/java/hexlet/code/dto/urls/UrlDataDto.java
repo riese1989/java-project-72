@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.Timestamp;
 
@@ -11,9 +12,8 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @Getter
 @Builder
-public class UrlData {
+public class UrlDataDto {
     private Long id;
     private String nameUrl;
-    private Timestamp lastCheck;
-    private Integer codeAnswer;
+    private UrlCheckDto urlCheckDto;
 }
