@@ -70,6 +70,7 @@ public final class App {
         app.post(NamedRoutes.urlsPath(), UrlController::create);
         app.get(NamedRoutes.urlsPath(), UrlController::showAll);
         app.get(NamedRoutes.urlDataPath(), UrlCheckController::show);
+        app.post(NamedRoutes.checkUrlPath(), UrlCheckController::check);
 
         return app;
     }

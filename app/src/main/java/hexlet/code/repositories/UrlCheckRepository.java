@@ -40,4 +40,5 @@ public class UrlCheckRepository extends BaseRepository<UrlCheck> {
 
         data.add(urlCheck);
     }
+
 }

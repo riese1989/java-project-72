@@ -7,10 +7,7 @@ import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -18,6 +15,7 @@ import java.sql.Timestamp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class AppTest {
     private Javalin app;
@@ -156,9 +154,11 @@ class AppTest {
     @DisplayName("Когда переходим на страницу urlChecks, но используем несуществующий urlId")
     public void showUrlChecksErrorTest() {
         JavalinTest.test(app, (server, client) -> {
-            var response = client.get(NamedRoutes.checkUrlPath(1L));
+            var response = client.get(NamedRoutes.urlDataPath(1L));
 
             assertThat(response.code()).isEqualTo(404);
+            assertNotNull(response.body());
+            assertThat(response.body().string()).contains("Url with id = 1 not found");
         });
     }
 }

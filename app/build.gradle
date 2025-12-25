@@ -24,7 +24,8 @@ dependencies {
     implementation 'io.javalin:javalin:6.7.0'
     implementation 'io.javalin:javalin-bundle:6.7.0'
     implementation 'io.javalin:javalin-rendering:6.7.0'
-    implementation 'com.konghq:unirest-java-bom:4.5.1'
+    implementation 'com.konghq:unirest-java:3.14.5'
+    implementation("org.jsoup:jsoup:1.21.2")
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

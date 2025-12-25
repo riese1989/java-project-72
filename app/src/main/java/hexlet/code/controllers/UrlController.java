@@ -1,9 +1,12 @@
 package hexlet.code.controllers;
 
+import hexlet.code.dto.urls.UrlCheckDto;
 import hexlet.code.dto.urls.UrlDataDto;
 import hexlet.code.dto.urls.UrlsPage;
 import hexlet.code.models.MessageRecord;
 import hexlet.code.models.Url;
+import hexlet.code.models.UrlCheck;
+import hexlet.code.repositories.UrlCheckRepository;
 import hexlet.code.repositories.UrlRepository;
 import io.javalin.http.Context;
 
@@ -13,6 +16,7 @@ import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.javalin.rendering.template.TemplateUtil.model;
 
@@ -54,10 +58,30 @@ public final class UrlController {
     }
 
     public static void showAll(final Context ctx) {
+        var latestChecks = UrlCheckRepository.getData().stream()
+                .collect(Collectors.toMap(
+                        UrlCheck::getUrlId,      // Ключ — urlId
+                        check -> check,          // Значение — сам объект
+                        (existing, replacement) ->
+                                existing.getCreatedAt().after(replacement.getCreatedAt()) ? existing : replacement
+                ))                           // На выходе Map<Long, UrlCheck>
+                .values()                    // Берем только значения (самые свежие UrlCheck)
+                .stream()
+                .toList();
+
         List<UrlDataDto> urlDataDtoList = UrlRepository.getData().stream()
                 .map(urlData -> UrlDataDto.builder()
                         .id(urlData.getId())
                         .nameUrl(urlData.getName())
+                        .urlCheckDto(
+                                latestChecks.stream()
+                                        .filter(check -> check.getUrlId() == urlData.getId())
+                                        .findFirst()
+                                        .map(urlCheck -> UrlCheckDto.builder()
+                                                .codeAnswer(urlCheck.getStatusCode())
+                                                .dateCheck(urlCheck.getCreatedAt())
+                                                .build())
+                                        .orElse(null))
                         .build()
                 )
                 .toList();
