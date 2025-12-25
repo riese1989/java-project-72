@@ -1,7 +1,6 @@
 package hexlet.code.repositories;
 
 import hexlet.code.models.Url;
-import hexlet.code.models.UrlCheck;
 import lombok.Getter;
 
 import java.sql.SQLException;
