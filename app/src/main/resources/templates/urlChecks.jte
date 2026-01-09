@@ -42,7 +42,7 @@ content = @`
             @if(page.getChecks() != null)
                 @for (var check : page.getChecks())
                     <tr>
-                        <td>${check.getId()}</td>
+                        <td>${page.getChecks().indexOf(check) + 1}</td>
                         <td>${check.getCodeAnswer()}</td>
                         <td>${check.getTitle()}</td>
                         <td>${check.getH1()}</td>

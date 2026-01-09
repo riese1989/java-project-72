@@ -41,4 +41,8 @@ public class UrlCheckRepository extends BaseRepository<UrlCheck> {
         data.add(urlCheck);
     }
 
+    public static void truncate() throws SQLException {
+        truncate("url_checks");
+        data.clear();
+    }
 }

@@ -15,7 +15,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static io.javalin.rendering.template.TemplateUtil.model;
@@ -45,6 +47,16 @@ public final class UrlController {
                 .map(urlData -> UrlDataDto.builder()
                         .id(urlData.getId())
                         .nameUrl(urlData.getName())
+                        .urlCheckDto(
+                                UrlCheckRepository.getData().stream()
+                                        .filter(check -> Objects.equals(check.getUrlId(), urlData.getId()))
+                                        .max(Comparator.comparing(UrlCheck::getCreatedAt))
+                                        .map(check -> UrlCheckDto.builder()
+                                                    .codeAnswer(check.getStatusCode())
+                                                    .dateCheck(check.getCreatedAt())
+                                                    .build())
+                                        .orElse(null)
+                        )
                         .build()
                 )
                 .toList();

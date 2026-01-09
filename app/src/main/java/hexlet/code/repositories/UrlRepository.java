@@ -33,13 +33,7 @@ public class UrlRepository extends BaseRepository<Url> {
     }
 
     public static void truncate() throws SQLException {
-        var sql = "DELETE FROM urls";
-
-        try (var conn = dataSource.getConnection();
-             var preparedStatement = conn.prepareStatement(sql)) {
-            preparedStatement.executeUpdate();
-        }
-
+        truncate("urls");
         data.clear();
     }
 }

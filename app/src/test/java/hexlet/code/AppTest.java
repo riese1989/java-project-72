@@ -2,10 +2,12 @@ package hexlet.code;
 
 import hexlet.code.models.MessageRecord;
 import hexlet.code.models.Url;
+import hexlet.code.repositories.UrlCheckRepository;
 import hexlet.code.repositories.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
+import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.*;
 
@@ -20,18 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class AppTest {
     private Javalin app;
     private final Timestamp date = Timestamp.valueOf("2023-01-01 00:00:00");
-    private final MockWebServer server = new MockWebServer();
 
     @BeforeEach
     public final void setUp() throws SQLException, IOException {
         app = App.getApp();
         UrlRepository.truncate();
-        server.start();
-    }
-
-    @AfterEach
-    public final void tearDown() throws IOException {
-       server.shutdown();
+        UrlCheckRepository.truncate();
     }
 
     @Test
@@ -54,6 +50,7 @@ class AppTest {
             var response = client.post(NamedRoutes.urlsPath(), requestBody);
 
             assertThat(response.code()).isEqualTo(200);
+            assertNotNull(response.body());
 
             var body = response.body().string();
 
@@ -116,6 +113,7 @@ class AppTest {
             var response = client.post(NamedRoutes.urlsPath(), requestBody);
 
             assertThat(response.code()).isEqualTo(200);
+            assertNotNull(response.body());
 
             var body = response.body().string();
 
@@ -160,5 +158,79 @@ class AppTest {
             assertNotNull(response.body());
             assertThat(response.body().string()).contains("Url with id = 1 not found");
         });
+    }
+
+    @Test
+    @DisplayName("Запускаем несколько раз проверку url")
+    public void showUrlChecksTest() throws SQLException, IOException {
+        var mockWebServer = new MockWebServer();
+        var id = 1L;
+
+        var htmlMissing = "<html>" +
+                "<head><title>Только заголовок</title></head>" +
+                "<body></body>" +
+                "</html>";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(404)
+                .setBody(htmlMissing));
+
+        var htmlFull = "<html>" +
+                "<head>" +
+                "  <title>Заголовок страницы</title>" +
+                "  <meta name=\"description\" content=\"Описание сайта для SEO\">" +
+                "</head>" +
+                "<body>" +
+                "  <h1>Основной заголовок H1</h1>" +
+                "</body>" +
+                "</html>";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody(htmlFull));
+
+        mockWebServer.start();
+
+        var urlString = mockWebServer.url("/").toString();
+        var requestBody = "id=" + id;
+
+
+        var url = Url.builder().name(urlString).createdAt(date).build();
+
+        UrlRepository.save(url);
+
+        JavalinTest.test(app, (server, client) -> {
+                    client.post(NamedRoutes.checkUrlPath(id), requestBody);
+                    client.post(NamedRoutes.checkUrlPath(id), requestBody);
+
+                    var responseChecks = client.get(NamedRoutes.urlDataPath(id));
+
+                    assertThat(responseChecks.code()).isEqualTo(200);
+                    assertNotNull(responseChecks.body());
+
+                    var bodyChecks = responseChecks.body().string();
+
+                    assertNotNull(bodyChecks);
+                    assertThat(bodyChecks).contains("<td>1</td>");
+                    assertThat(bodyChecks).contains("<td>404</td>");
+                    assertThat(bodyChecks).contains("<td></td>");
+                    assertThat(bodyChecks).contains("<td>2</td>");
+                    assertThat(bodyChecks).contains("<td>200</td>");
+                    assertThat(bodyChecks).contains("<td>Заголовок страницы</td>");
+                    assertThat(bodyChecks).contains("<td>Основной заголовок H1</td>");
+                    assertThat(bodyChecks).contains("<td>Описание сайта для SEO</td>");
+
+                    var responseUrls = client.get(NamedRoutes.urlsPath());
+
+                    assertNotNull(responseUrls.body());
+
+                    var bodyUrls = responseUrls.body().string();
+
+                    assertThat(bodyUrls).contains("<td>1</td>");
+                    assertThat(bodyUrls).contains("<td><a href=\"/urls/1\">%s</a></td>".formatted(urlString));
+                    assertThat(bodyUrls).contains("<td>200</td>");
+                }
+        );
+        mockWebServer.shutdown();
     }
 }
