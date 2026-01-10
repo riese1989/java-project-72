@@ -18,7 +18,9 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class AppTest {
     private Javalin app;
@@ -168,24 +170,24 @@ class AppTest {
         var mockWebServer = new MockWebServer();
         var id = 1L;
 
-        var htmlMissing = "<html>" +
-                "<head><title>Только заголовок</title></head>" +
-                "<body></body>" +
-                "</html>";
+        var htmlMissing = "<html>"
+                + "<head><title>Только заголовок</title></head>"
+                + "<body></body>"
+                + "</html>";
 
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(404)
                 .setBody(htmlMissing));
 
-        var htmlFull = "<html>" +
-                "<head>" +
-                "  <title>Заголовок страницы</title>" +
-                "  <meta name=\"description\" content=\"Описание сайта для SEO\">" +
-                "</head>" +
-                "<body>" +
-                "  <h1>Основной заголовок H1</h1>" +
-                "</body>" +
-                "</html>";
+        var htmlFull = "<html>"
+                + "<head>"
+                + "  <title>Заголовок страницы</title>"
+                + "  <meta name=\"description\" content=\"Описание сайта для SEO\">"
+                + "</head>"
+                + "<body>"
+                + "  <h1>Основной заголовок H1</h1>"
+                + "</body>"
+                + "</html>";
 
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -202,36 +204,36 @@ class AppTest {
         UrlRepository.save(url);
 
         JavalinTest.test(app, (server, client) -> {
-                    client.post(NamedRoutes.checkUrlPath(id), requestBody);
-                    client.post(NamedRoutes.checkUrlPath(id), requestBody);
+            client.post(NamedRoutes.checkUrlPath(id), requestBody);
+            client.post(NamedRoutes.checkUrlPath(id), requestBody);
 
-                    var responseChecks = client.get(NamedRoutes.urlDataPath(id));
+            var responseChecks = client.get(NamedRoutes.urlDataPath(id));
 
-                    assertThat(responseChecks.code()).isEqualTo(200);
-                    assertNotNull(responseChecks.body());
+            assertThat(responseChecks.code()).isEqualTo(200);
+            assertNotNull(responseChecks.body());
 
-                    var bodyChecks = responseChecks.body().string();
+            var bodyChecks = responseChecks.body().string();
 
-                    assertNotNull(bodyChecks);
-                    assertThat(bodyChecks).contains("<td>1</td>");
-                    assertThat(bodyChecks).contains("<td>404</td>");
-                    assertThat(bodyChecks).contains("<td></td>");
-                    assertThat(bodyChecks).contains("<td>2</td>");
-                    assertThat(bodyChecks).contains("<td>200</td>");
-                    assertThat(bodyChecks).contains("<td>Заголовок страницы</td>");
-                    assertThat(bodyChecks).contains("<td>Основной заголовок H1</td>");
-                    assertThat(bodyChecks).contains("<td>Описание сайта для SEO</td>");
+            assertNotNull(bodyChecks);
+            assertThat(bodyChecks).contains("<td>1</td>");
+            assertThat(bodyChecks).contains("<td>404</td>");
+            assertThat(bodyChecks).contains("<td></td>");
+            assertThat(bodyChecks).contains("<td>2</td>");
+            assertThat(bodyChecks).contains("<td>200</td>");
+            assertThat(bodyChecks).contains("<td>Заголовок страницы</td>");
+            assertThat(bodyChecks).contains("<td>Основной заголовок H1</td>");
+            assertThat(bodyChecks).contains("<td>Описание сайта для SEO</td>");
 
-                    var responseUrls = client.get(NamedRoutes.urlsPath());
+            var responseUrls = client.get(NamedRoutes.urlsPath());
 
-                    assertNotNull(responseUrls.body());
+            assertNotNull(responseUrls.body());
 
-                    var bodyUrls = responseUrls.body().string();
+            var bodyUrls = responseUrls.body().string();
 
-                    assertThat(bodyUrls).contains("<td>1</td>");
-                    assertThat(bodyUrls).contains("<td><a href=\"/urls/1\">%s</a></td>".formatted(urlString));
-                    assertThat(bodyUrls).contains("<td>200</td>");
-                }
+            assertThat(bodyUrls).contains("<td>1</td>");
+            assertThat(bodyUrls).contains("<td><a href=\"/urls/1\">%s</a></td>".formatted(urlString));
+            assertThat(bodyUrls).contains("<td>200</td>");
+            }
         );
         mockWebServer.shutdown();
     }

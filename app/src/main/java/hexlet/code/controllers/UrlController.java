@@ -19,7 +19,7 @@ import java.util.List;
 import static io.javalin.rendering.template.TemplateUtil.model;
 
 public final class UrlController {
-    private static final UrlRepository repo = new UrlRepository();
+    private static final UrlRepository urlRepository = new UrlRepository();
 
     public static void create(final Context ctx)
             throws MalformedURLException, URISyntaxException, SQLException {
@@ -31,10 +31,9 @@ public final class UrlController {
         MessageRecord messageRecord;
 
         try {
-            repo.save(url);
+            urlRepository.save(url);
 
-            messageRecord = MessageRecord.OK;
-        }
+            messageRecord = MessageRecord.OK;}
         catch (Exception ex) {
             messageRecord = MessageRecord.PAGE_EXISTS;
         }

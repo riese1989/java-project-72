@@ -84,8 +84,8 @@ public class UrlCheckController {
                     .toList());
 
             page.checks(urlChecksData);
-
-            ctx.render("urlChecks.jte", model("page", page.build()));
         }
+
+        ctx.render("urlChecks.jte", model("page", page.build()));
     }
 }

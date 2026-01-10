@@ -11,8 +11,8 @@ import java.util.List;
 public class UrlCheckRepository extends BaseRepository {
 
     public static void save(UrlCheck urlCheck) throws SQLException {
-        var sql = "INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        var sql = "INSERT INTO url_checks (url_id, status_code, h1, title, description, created_at) "
+                + "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (var conn = dataSource.getConnection();
              var preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
