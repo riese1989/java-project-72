@@ -35,13 +35,8 @@ content = @`
                 <tr>
                     <td>${urlData.getId()}</td>
                     <td><a href="${NamedRoutes.urlDataPath(urlData.getId())}">${urlData.getNameUrl()}</a></td>
-                    @if(urlData.getUrlCheckDto() != null)
-                        <td>${String.valueOf(urlData.getUrlCheckDto().getDateCheck())}</td>
-                        <td>${String.valueOf(urlData.getUrlCheckDto().getCodeAnswer())}</td>
-                    @else
-                        <td></td>
-                        <td></td>
-                    @endif
+                    <td>${String.valueOf(urlData.getDateLastCheck())}</td>
+                    <td>${String.valueOf(urlData.getCodeAnswer())}</td>
                 </tr>
             @endfor
             </tbody>

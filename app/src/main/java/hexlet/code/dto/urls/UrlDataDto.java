@@ -15,5 +15,6 @@ import java.sql.Timestamp;
 public class UrlDataDto {
     private Long id;
     private String nameUrl;
-    private UrlCheckDto urlCheckDto;
+    private Integer codeAnswer;
+    private Timestamp dateLastCheck;
 }

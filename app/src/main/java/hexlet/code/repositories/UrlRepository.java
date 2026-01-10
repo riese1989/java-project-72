@@ -1,16 +1,12 @@
 package hexlet.code.repositories;
 
 import hexlet.code.models.Url;
-import lombok.Getter;
 
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
-public class UrlRepository extends BaseRepository<Url> {
-    @Getter
-    private static List<Url> data = new ArrayList<>();
+public class UrlRepository extends BaseRepository {
 
     public static void save(Url url) throws SQLException {
         var sql = "INSERT INTO urls (name, created_at) VALUES (?, ?)";
@@ -28,7 +24,26 @@ public class UrlRepository extends BaseRepository<Url> {
                 }
             }
         }
+    }
 
-        data.add(url);
+    public static Optional<Url> getById(long id) throws SQLException {
+        var sql = "SELECT id, name, created_at FROM urls WHERE id = ?";
+
+        try (var conn = dataSource.getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.setLong(1, id);
+            var resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return Optional.of(Url.builder()
+                        .id(resultSet.getLong("id"))
+                        .name(resultSet.getString("name")).
+                        createdAt(resultSet.getTimestamp("created_at"))
+                        .build());
+            }
+        }
+
+        return Optional.empty();
     }
 }

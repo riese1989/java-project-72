@@ -22,20 +22,15 @@ import static java.util.Optional.ofNullable;
 
 public class UrlCheckController {
 
-    public static void show(final Context ctx) {
-        var urls = UrlRepository.getData();
-        var urlId = Long.valueOf(ctx.pathParam("id"));
-        var urlData = urls.stream().filter(url -> url.getId().equals(urlId)).findFirst()
-                .orElseThrow(() -> new NotFoundResponse("Url with id = %s not found".formatted(urlId)));
+    public static void show(final Context ctx) throws SQLException {
+        var urlData = getUrl(ctx);
 
         drowPage(urlData, ctx);
     }
 
     public static void check(final Context ctx) throws SQLException {
         var urlId = Long.valueOf(ctx.pathParam("id"));
-        var checkedUrlData = UrlRepository.getData().stream()
-                .filter(url -> url.getId().equals(urlId)).findFirst()
-                .orElseThrow(() -> new NotFoundResponse("Url with id = %s not found".formatted(urlId)));
+        var checkedUrlData = getUrl(ctx);
         var response = Unirest.get(checkedUrlData.getName()).asString();
         var builder = UrlCheck.builder()
                 .statusCode(response.getStatus())
@@ -56,13 +51,22 @@ public class UrlCheckController {
         drowPage(checkedUrlData, ctx);
     }
 
-    private static void drowPage(Url urlData, Context ctx) {
+    private static Url getUrl(final Context ctx) throws SQLException {
+        var id = Long.valueOf(ctx.pathParam("id"));
+
+        return UrlRepository.getById(id)
+                .orElseThrow(() -> new NotFoundResponse("Url with id = %s not found".formatted(id)));
+
+    }
+
+    private static void drowPage(Url urlData, Context ctx) throws SQLException {
         var page = UrlDataCheckPage.builder()
                 .id(urlData.getId())
                 .name(urlData.getName())
                 .createdAt(urlData.getCreatedAt());
+        var id = Long.valueOf(ctx.pathParam("id"));
 
-        var urlChecks = UrlCheckRepository.getData();
+        var urlChecks = UrlCheckRepository.getEntities(id);
 
         if (!urlChecks.isEmpty()) {
             var urlChecksData = new java.util.ArrayList<>(urlChecks.stream()
@@ -80,9 +84,8 @@ public class UrlCheckController {
                     .toList());
 
             page.checks(urlChecksData);
+
+            ctx.render("urlChecks.jte", model("page", page.build()));
         }
-
-        ctx.render("urlChecks.jte", model("page", page.build()));
-
     }
 }

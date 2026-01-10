@@ -18,8 +18,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AppTest {
     private Javalin app;
@@ -29,11 +28,10 @@ class AppTest {
     public final void setUp() throws SQLException, IOException {
         app = App.getApp();
 
-        var sql = "DELETE FROM urls, url_checks";
-
         try (var conn = BaseRepository.getDataSource().getConnection();
-             var preparedStatement = conn.prepareStatement(sql)) {
-            preparedStatement.executeUpdate();
+             var preparedStatement = conn.createStatement()) {
+            preparedStatement.execute("DELETE FROM urls");
+            preparedStatement.execute("DELETE FROM url_checks");
         }
     }
 
@@ -50,7 +48,7 @@ class AppTest {
 
     @Test
     @DisplayName("Добавление нового URL, когда таблица пустая")
-    public void addUrlEmptyDbTest() {
+    public void addUrlEmptyDbTest() throws SQLException {
         var requestBody = "url=https://gitverse.ru/features/gigacode/install/";
 
         JavalinTest.test(app, (server, client) -> {
@@ -66,12 +64,10 @@ class AppTest {
             assertThat(body).contains(MessageRecord.OK.getMessage());
         });
 
-        var urls = UrlRepository.getData();
+        var url = UrlRepository.getById(1L).get();
 
-        assertEquals(1, urls.size());
-
-        assertEquals(1, urls.get(0).getId());
-        assertEquals("https://gitverse.ru", urls.get(0).getName());
+        assertEquals(1, url.getId());
+        assertEquals("https://gitverse.ru", url.getName());
     }
 
     @Test
@@ -97,14 +93,15 @@ class AppTest {
             assertThat(body).contains(MessageRecord.OK.getMessage());
         });
 
-        var urls = UrlRepository.getData();
+        var url1 = UrlRepository.getById(1L).get();
 
-        assertEquals(2, urls.size());
+        assertEquals(1, url1.getId());
+        assertEquals("https://habr.com", url1.getName());
 
-        assertEquals(1, urls.get(0).getId());
-        assertEquals("https://habr.com", urls.get(0).getName());
-        assertEquals(2, urls.get(1).getId());
-        assertEquals("https://gitverse.ru", urls.get(1).getName());
+        var url2 = UrlRepository.getById(2L).get();
+
+        assertEquals(2, url2.getId());
+        assertEquals("https://gitverse.ru", url2.getName());
     }
 
     @Test
@@ -129,17 +126,15 @@ class AppTest {
             assertThat(body).contains(MessageRecord.PAGE_EXISTS.getMessage());
         });
 
-        var urls = UrlRepository.getData();
+        var urlData = UrlRepository.getById(1L).get();
 
-        assertEquals(1, urls.size());
-
-        assertEquals(1, urls.get(0).getId());
-        assertEquals("https://gitverse.ru", urls.get(0).getName());
+        assertEquals(1, urlData.getId());
+        assertEquals("https://gitverse.ru", urlData.getName());
     }
 
     @Test
     @DisplayName("Показываем список урлов, когда таблица пустая")
-    public void showUrlsEmptyDbTest() {
+    public void showUrlsEmptyDbTest() throws SQLException {
         JavalinTest.test(app, (server, client) -> {
             var response = client.get(NamedRoutes.urlsPath());
 
@@ -150,9 +145,9 @@ class AppTest {
             assertThat(body).doesNotContain("<td></td>");
         });
 
-        var urls = UrlRepository.getData();
+        var url = UrlRepository.getById(1L).orElse(null);
 
-        assertEquals(0, urls.size());
+        assertNull(url);
     }
 
     @Test
