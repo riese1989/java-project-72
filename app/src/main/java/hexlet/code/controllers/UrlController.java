@@ -33,8 +33,7 @@ public final class UrlController {
             UrlRepository.save(url);
 
             messageRecord = MessageRecord.OK;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             messageRecord = MessageRecord.PAGE_EXISTS;
         }
 
