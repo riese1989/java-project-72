@@ -31,9 +31,4 @@ public class UrlRepository extends BaseRepository<Url> {
 
         data.add(url);
     }
-
-    public static void truncate() throws SQLException {
-        truncate("urls");
-        data.clear();
-    }
 }

@@ -2,14 +2,16 @@ package hexlet.code;
 
 import hexlet.code.models.MessageRecord;
 import hexlet.code.models.Url;
-import hexlet.code.repositories.UrlCheckRepository;
+import hexlet.code.repositories.BaseRepository;
 import hexlet.code.repositories.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -26,8 +28,13 @@ class AppTest {
     @BeforeEach
     public final void setUp() throws SQLException, IOException {
         app = App.getApp();
-        UrlRepository.truncate();
-        UrlCheckRepository.truncate();
+
+        var sql = "DELETE FROM urls, url_checks";
+
+        try (var conn = BaseRepository.getDataSource().getConnection();
+             var preparedStatement = conn.prepareStatement(sql)) {
+            preparedStatement.executeUpdate();
+        }
     }
 
     @Test
