@@ -19,7 +19,6 @@ import java.util.List;
 import static io.javalin.rendering.template.TemplateUtil.model;
 
 public final class UrlController {
-    private static final UrlRepository urlRepository = new UrlRepository();
 
     public static void create(final Context ctx)
             throws MalformedURLException, URISyntaxException, SQLException {
@@ -31,7 +30,7 @@ public final class UrlController {
         MessageRecord messageRecord;
 
         try {
-            urlRepository.save(url);
+            UrlRepository.save(url);
 
             messageRecord = MessageRecord.OK;}
         catch (Exception ex) {
