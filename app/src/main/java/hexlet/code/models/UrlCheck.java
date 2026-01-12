@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -18,5 +19,5 @@ public final class UrlCheck {
     private String h1;
     private String description;
     private Long urlId;
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 }

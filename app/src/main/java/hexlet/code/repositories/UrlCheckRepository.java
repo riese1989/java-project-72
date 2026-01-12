@@ -4,8 +4,11 @@ import hexlet.code.models.UrlCheck;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.Optional.ofNullable;
 
 
 public class UrlCheckRepository extends BaseRepository {
@@ -22,7 +25,7 @@ public class UrlCheckRepository extends BaseRepository {
             preparedStatement.setString(3, urlCheck.getH1());
             preparedStatement.setString(4, urlCheck.getTitle());
             preparedStatement.setString(5, urlCheck.getDescription());
-            preparedStatement.setTimestamp(6, urlCheck.getCreatedAt());
+            preparedStatement.setTimestamp(6, Timestamp.valueOf(urlCheck.getCreatedAt()));
 
             preparedStatement.executeUpdate();
 
@@ -61,7 +64,7 @@ public class UrlCheckRepository extends BaseRepository {
                         .h1(h1)
                         .title(title)
                         .description(description)
-                        .createdAt(dateLastCheck)
+                        .createdAt(ofNullable(dateLastCheck).map(Timestamp::toLocalDateTime).orElse(null))
                         .build();
 
                 result.add(urlData);

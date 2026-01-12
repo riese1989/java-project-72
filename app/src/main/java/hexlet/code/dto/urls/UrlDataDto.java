@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,5 +15,5 @@ public class UrlDataDto {
     private Long id;
     private String nameUrl;
     private Integer codeAnswer;
-    private Timestamp dateLastCheck;
+    private LocalDateTime dateLastCheck;
 }

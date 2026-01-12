@@ -10,6 +10,7 @@ import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
 import kong.unirest.Unirest;
+import kong.unirest.UnirestException;
 import org.jsoup.Jsoup;
 
 import java.sql.SQLException;
@@ -18,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static io.javalin.rendering.template.TemplateUtil.model;
-import static java.util.Optional.ofNullable;
 
 public class UrlCheckController {
 
@@ -31,24 +31,31 @@ public class UrlCheckController {
     public static void check(final Context ctx) throws SQLException {
         var urlId = Long.valueOf(ctx.pathParam("id"));
         var checkedUrlData = getUrl(ctx);
-        var response = Unirest.get(checkedUrlData.getName()).asString();
-        var builder = UrlCheck.builder()
-                .statusCode(response.getStatus())
-                .urlId(urlId)
-                .createdAt(Timestamp.valueOf(LocalDateTime.now()));
 
-        if (response.getStatus() == HttpStatus.OK.getCode()) {
-            var html = response.getBody();
-            var doc = Jsoup.parse(html);
+        try {
+            var response = Unirest.get(checkedUrlData.getName()).asString();
+            var builder = UrlCheck.builder()
+                    .statusCode(response.getStatus())
+                    .urlId(urlId)
+                    .createdAt(LocalDateTime.now());
 
-            Optional.of(doc.title()).ifPresent(builder::title);
-            ofNullable(doc.selectFirst("h1")).ifPresent(h1 -> builder.h1(h1.text()));
-            ofNullable(doc.selectFirst("meta[name=description]"))
-                    .ifPresent(meta -> builder.description(meta.attr("content")));
+            if (response.getStatus() == HttpStatus.OK.getCode()) {
+                var html = response.getBody();
+                var doc = Jsoup.parse(html);
+
+                Optional.of(doc.title()).ifPresent(builder::title);
+                Optional.ofNullable(doc.selectFirst("h1")).ifPresent(h1 -> builder.h1(h1.text()));
+                Optional.ofNullable(doc.selectFirst("meta[name=description]"))
+                        .ifPresent(meta -> builder.description(meta.attr("content")));
+            }
+
+            UrlCheckRepository.save(builder.build());
+            drowPage(checkedUrlData, ctx);
+        } catch (UnirestException e) {
+            System.err.println("Ошибка при обращении к стороннему сервису: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Неизвестная ошибка: " + e.getMessage());
         }
-
-        UrlCheckRepository.save(builder.build());
-        drowPage(checkedUrlData, ctx);
     }
 
     private static Url getUrl(final Context ctx) throws SQLException {

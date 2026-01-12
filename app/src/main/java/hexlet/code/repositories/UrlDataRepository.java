@@ -3,8 +3,11 @@ package hexlet.code.repositories;
 import hexlet.code.models.UrlData;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.Optional.ofNullable;
 
 public class UrlDataRepository extends BaseRepository {
     public static List<UrlData> getUrlData() throws SQLException {
@@ -28,11 +31,11 @@ public class UrlDataRepository extends BaseRepository {
                 var urlData = UrlData.builder()
                         .id(id)
                         .name(name)
-                        .codeAnswer(codeAnswer)
-                        .dateLastCheck(dateLastCheck)
-                        .build();
+                        .dateLastCheck(ofNullable(dateLastCheck).map(Timestamp::toLocalDateTime).orElse(null))
+                        .codeAnswer(codeAnswer);
 
-                result.add(urlData);
+
+                result.add(urlData.build());
             }
             return result;
         }

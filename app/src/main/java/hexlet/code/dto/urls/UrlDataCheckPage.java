@@ -3,7 +3,7 @@ package hexlet.code.dto.urls;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -11,6 +11,6 @@ import java.util.List;
 public class UrlDataCheckPage {
     private Long id;
     private String name;
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
     private List<UrlCheckDto> checks;
 }

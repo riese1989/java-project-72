@@ -25,7 +25,7 @@ public final class UrlController {
         var inputUrl = ctx.formParam("url");
         var domainWithProtocolAndPort = getShortenUrl(inputUrl);
         var url = Url.builder().name(domainWithProtocolAndPort)
-                .createdAt(Timestamp.valueOf(LocalDateTime.now())).build();
+                .createdAt(LocalDateTime.now()).build();
 
         MessageRecord messageRecord;
 
@@ -37,15 +37,27 @@ public final class UrlController {
             messageRecord = MessageRecord.PAGE_EXISTS;
         }
 
-        drowPage(ctx, messageRecord);
+
+        var urlDataList = prepareUrlData();
+        var page = UrlsPage.builder()
+                .messageRecord(messageRecord)
+                .data(urlDataList)
+                .build();
+
+        ctx.render("urls.jte", model("page", page));
     }
 
     public static void showAll(final Context ctx) throws SQLException {
-        drowPage(ctx, null);
+        var urlDataList = prepareUrlData();
+        var page = UrlsPage.builder()
+                .data(urlDataList)
+                .build();
+
+        ctx.render("urls.jte", model("page", page));
     }
 
-    private static void drowPage(final Context ctx, MessageRecord messageRecord) throws SQLException {
-        List<UrlDataDto> urlDataList = UrlDataRepository.getUrlData().stream()
+    private static List<UrlDataDto> prepareUrlData() throws SQLException {
+        return UrlDataRepository.getUrlData().stream()
                 .map(urlData -> UrlDataDto.builder()
                         .id(urlData.getId())
                         .nameUrl(urlData.getName())
@@ -54,13 +66,6 @@ public final class UrlController {
                         .build()
                 )
                 .toList();
-
-        ctx.render("urls.jte",
-                model("page",
-                        UrlsPage.builder()
-                                .messageRecord(messageRecord)
-                                .data(urlDataList)
-                                .build()));
     }
 
     private static String getShortenUrl(final String inputUrl)

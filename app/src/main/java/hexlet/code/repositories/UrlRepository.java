@@ -4,7 +4,10 @@ import hexlet.code.models.Url;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 public class UrlRepository extends BaseRepository {
 
@@ -15,7 +18,7 @@ public class UrlRepository extends BaseRepository {
              var preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setString(1, url.getName());
-            preparedStatement.setTimestamp(2, url.getCreatedAt());
+            preparedStatement.setTimestamp(2, Timestamp.valueOf(url.getCreatedAt()));
             preparedStatement.executeUpdate();
 
             try (var generatedKeys = preparedStatement.getGeneratedKeys()) {
@@ -36,10 +39,12 @@ public class UrlRepository extends BaseRepository {
             var resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
+                var createdAt = resultSet.getTimestamp("created_at");
+
                 return Optional.of(Url.builder()
                         .id(resultSet.getLong("id"))
-                        .name(resultSet.getString("name")).
-                        createdAt(resultSet.getTimestamp("created_at"))
+                        .name(resultSet.getString("name"))
+                        .createdAt(ofNullable(createdAt).map(Timestamp::toLocalDateTime).orElse(null))
                         .build());
             }
         }

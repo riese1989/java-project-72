@@ -3,6 +3,7 @@ package hexlet.code;
 import hexlet.code.models.MessageRecord;
 import hexlet.code.models.Url;
 import hexlet.code.repositories.BaseRepository;
+import hexlet.code.repositories.UrlCheckRepository;
 import hexlet.code.repositories.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.Javalin;
@@ -15,16 +16,14 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AppTest {
     private Javalin app;
-    private final Timestamp date = Timestamp.valueOf("2023-01-01 00:00:00");
+    private final LocalDateTime date = LocalDateTime.parse("2023-01-01T00:00:00");
 
     @BeforeEach
     public final void setUp() throws SQLException, IOException {
@@ -95,6 +94,8 @@ class AppTest {
             assertThat(body).contains(MessageRecord.OK.getMessage());
         });
 
+        assertEquals(1L, url.getId());
+
         var url1 = UrlRepository.getById(1L).get();
 
         assertEquals(1, url1.getId());
@@ -127,6 +128,8 @@ class AppTest {
             assertThat(body).contains("<td><a href=\"/urls/1\">https://gitverse.ru</a></td>");
             assertThat(body).contains(MessageRecord.PAGE_EXISTS.getMessage());
         });
+
+        assertEquals(1L, url.getId());
 
         var urlData = UrlRepository.getById(1L).get();
 
@@ -235,6 +238,28 @@ class AppTest {
             assertThat(bodyUrls).contains("<td>200</td>");
             }
         );
+
+        var urlId = url.getId();
+
+        assertEquals(1L, urlId);
+
+        var urlChecks = UrlCheckRepository.getEntities(urlId);
+
+        assertNotNull(urlChecks);
+        assertEquals(2, urlChecks.size());
+
+        assertTrue(urlChecks.get(0).toString()
+                .contains("id=1, statusCode=404, title=null, h1=null, description=null, urlId=1"));
+        assertTrue(urlChecks.get(1).toString()
+                .contains("id=2, statusCode=200, title=Заголовок страницы, h1=Основной заголовок H1, "
+                        + "description=Описание сайта для SEO, urlId=1"));
+
+        var dbUrl = UrlRepository.getById(id);
+
+        assertNotNull(dbUrl);
+
+        assertTrue(dbUrl.toString()
+                .contains("id=1, name=http://kubernetes.docker.internal"));
         mockWebServer.shutdown();
     }
 }
