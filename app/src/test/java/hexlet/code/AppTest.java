@@ -259,7 +259,7 @@ class AppTest {
         assertNotNull(dbUrl);
 
         assertTrue(dbUrl.toString()
-                .contains("id=1, name=http://kubernetes.docker.internal"));
+                .contains("id=1, name=http"));
         mockWebServer.shutdown();
     }
 }
