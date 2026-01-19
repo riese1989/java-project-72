@@ -26,9 +26,9 @@ public class UrlCheckController {
 
     public static void show(final Context ctx) throws SQLException {
         var urlData = getUrl(ctx);
-        var pageBuilder = getPageBuilder(urlData, ctx);
+        var pageBuilder = getPage(urlData, ctx);
 
-        ctx.render("urlChecks.jte", model("page", pageBuilder.build()));
+        ctx.render("urlChecks.jte", model("page", pageBuilder));
     }
 
     public static void check(final Context ctx) throws SQLException {
@@ -69,13 +69,13 @@ public class UrlCheckController {
             messageRecord = MessageRecord.UNKNOWN_ERROR;
         }
 
-        var pageBuilder = getPageBuilder(checkedUrlData, ctx);
+        var page = getPage(checkedUrlData, ctx);
 
         if (messageRecord != null) {
-            pageBuilder.messageRecord(messageRecord);
+            page.setMessageRecord(messageRecord);
         }
 
-        ctx.render("urlChecks.jte", model("page", pageBuilder.build()));
+        ctx.render("urlChecks.jte", model("page", page));
     }
 
     private static Url getUrl(final Context ctx) throws SQLException {
@@ -86,7 +86,7 @@ public class UrlCheckController {
 
     }
 
-    private static UrlDataCheckPage.UrlDataCheckPageBuilder getPageBuilder(Url urlData, Context ctx) throws SQLException {
+    private static UrlDataCheckPage getPage(Url urlData, Context ctx) throws SQLException {
         var pageBuilder = UrlDataCheckPage.builder()
                 .id(urlData.getId())
                 .name(urlData.getName())
@@ -113,6 +113,6 @@ public class UrlCheckController {
             pageBuilder.checks(urlChecksData);
         }
 
-        return pageBuilder;
+        return pageBuilder.build();
     }
 }
