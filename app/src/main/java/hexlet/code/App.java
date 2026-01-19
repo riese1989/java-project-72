@@ -7,7 +7,7 @@ import gg.jte.resolve.ResourceCodeResolver;
 import hexlet.code.controllers.UrlCheckController;
 import hexlet.code.controllers.UrlController;
 import hexlet.code.repositories.BaseRepository;
-import hexlet.code.util.NamedRoutes;
+import hexlet.code.utils.NamedRoutes;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
 import lombok.extern.slf4j.Slf4j;

@@ -1,5 +1,7 @@
-package hexlet.code.dto.urls;
+package hexlet.code.dto.pages;
 
+import hexlet.code.dto.urls.UrlCheckDto;
+import hexlet.code.utils.MessageRecord;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -13,4 +15,5 @@ public class UrlDataCheckPage {
     private String name;
     private LocalDateTime createdAt;
     private List<UrlCheckDto> checks;
+    private MessageRecord messageRecord;
 }

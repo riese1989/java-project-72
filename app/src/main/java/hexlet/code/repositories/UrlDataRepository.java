@@ -1,6 +1,6 @@
 package hexlet.code.repositories;
 
-import hexlet.code.models.UrlData;
+import hexlet.code.entities.UrlData;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -12,10 +12,19 @@ import static java.util.Optional.ofNullable;
 public class UrlDataRepository extends BaseRepository {
     public static List<UrlData> getUrlData() throws SQLException {
         var sql = """
-                SELECT urls.id, urls.name, url_checks.status_code, MAX(url_checks.created_at) AS last_check
+                SELECT
+                    urls.id AS id,
+                    urls.name,
+                    url_checks.status_code,
+                    url_checks.created_at AS last_check
                 FROM urls
                 LEFT JOIN url_checks ON urls.id = url_checks.url_id
-                GROUP BY urls.id, urls.name, url_checks.status_code;
+                AND url_checks.created_at = (
+                    SELECT MAX(created_at)
+                    FROM url_checks AS inner_uc
+                    WHERE inner_uc.url_id = urls.id
+                )
+                ORDER BY id;
                 """;
 
         try (var conn = dataSource.getConnection();

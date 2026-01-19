@@ -1,11 +1,11 @@
 package hexlet.code;
 
-import hexlet.code.models.MessageRecord;
+import hexlet.code.utils.MessageRecord;
 import hexlet.code.models.Url;
 import hexlet.code.repositories.BaseRepository;
 import hexlet.code.repositories.UrlCheckRepository;
 import hexlet.code.repositories.UrlRepository;
-import hexlet.code.util.NamedRoutes;
+import hexlet.code.utils.NamedRoutes;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
 import okhttp3.mockwebserver.MockResponse;
@@ -129,7 +129,7 @@ class AppTest {
 
             assertThat(body).contains("<td>1</td>");
             assertThat(body).contains("<td><a href=\"/urls/1\">https://gitverse.ru</a></td>");
-            assertThat(body).contains(MessageRecord.PAGE_EXISTS.getMessage());
+            assertThat(body).contains(MessageRecord.PAGE_EXISTS_ERROR.getMessage());
         });
 
         assertEquals(1L, url.getId());
@@ -243,19 +243,28 @@ class AppTest {
         );
 
         var urlId = url.getId();
-
-        assertEquals(1L, urlId);
-
         var urlChecks = UrlCheckRepository.getEntities(urlId);
 
         assertNotNull(urlChecks);
         assertEquals(2, urlChecks.size());
 
-        assertTrue(urlChecks.get(0).toString()
-                .contains("id=1, statusCode=404, title=null, h1=null, description=null, urlId=1"));
-        assertTrue(urlChecks.get(1).toString()
-                .contains("id=2, statusCode=200, title=Заголовок страницы, h1=Основной заголовок H1, "
-                        + "description=Описание сайта для SEO, urlId=1"));
+        var urlCheck1 = urlChecks.get(0);
+
+        assertThat(urlCheck1).isNotNull();
+        assertThat(urlCheck1.getUrlId()).isEqualTo(1L);
+        assertThat(urlCheck1.getStatusCode()).isEqualTo(404);
+        assertThat(urlCheck1.getTitle()).isNull();
+        assertThat(urlCheck1.getH1()).isNull();
+        assertThat(urlCheck1.getDescription()).isNull();
+
+        var urlCheck2 = urlChecks.get(1);
+
+        assertThat(urlCheck2).isNotNull();
+        assertThat(urlCheck2.getUrlId()).isEqualTo(1L);
+        assertThat(urlCheck2.getStatusCode()).isEqualTo(200);
+        assertThat(urlCheck2.getTitle()).isEqualTo("Заголовок страницы");
+        assertThat(urlCheck2.getH1()).isEqualTo("Основной заголовок H1");
+        assertThat(urlCheck2.getDescription()).isEqualTo("Описание сайта для SEO");
 
         var dbUrl = UrlRepository.getById(id);
 

@@ -1,4 +1,4 @@
-package hexlet.code.util;
+package hexlet.code.utils;
 
 public class NamedRoutes {
     public static String urlsPath() {

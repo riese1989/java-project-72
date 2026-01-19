@@ -1,8 +1,8 @@
 package hexlet.code.controllers;
 
 import hexlet.code.dto.urls.UrlDataDto;
-import hexlet.code.dto.urls.UrlsPage;
-import hexlet.code.models.MessageRecord;
+import hexlet.code.dto.pages.UrlsPage;
+import hexlet.code.utils.MessageRecord;
 import hexlet.code.models.Url;
 import hexlet.code.repositories.UrlDataRepository;
 import hexlet.code.repositories.UrlRepository;
@@ -33,7 +33,7 @@ public final class UrlController {
 
             messageRecord = MessageRecord.OK;
         } catch (Exception ex) {
-            messageRecord = MessageRecord.PAGE_EXISTS;
+            messageRecord = MessageRecord.PAGE_EXISTS_ERROR;
         }
 
 

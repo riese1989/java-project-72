@@ -1,7 +1,8 @@
 package hexlet.code.controllers;
 
 import hexlet.code.dto.urls.UrlCheckDto;
-import hexlet.code.dto.urls.UrlDataCheckPage;
+import hexlet.code.dto.pages.UrlDataCheckPage;
+import hexlet.code.utils.MessageRecord;
 import hexlet.code.models.Url;
 import hexlet.code.models.UrlCheck;
 import hexlet.code.repositories.UrlCheckRepository;
@@ -11,6 +12,7 @@ import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
 import kong.unirest.Unirest;
 import kong.unirest.UnirestException;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 
 import java.sql.SQLException;
@@ -19,16 +21,20 @@ import java.util.Optional;
 
 import static io.javalin.rendering.template.TemplateUtil.model;
 
+@Slf4j
 public class UrlCheckController {
 
     public static void show(final Context ctx) throws SQLException {
         var urlData = getUrl(ctx);
+        var pageBuilder = getPageBuilder(urlData, ctx);
 
-        drowPage(urlData, ctx);
+        ctx.render("urlChecks.jte", model("page", pageBuilder.build()));
     }
 
     public static void check(final Context ctx) throws SQLException {
         var urlId = Long.valueOf(ctx.pathParam("id"));
+        MessageRecord messageRecord = null;
+
         var checkedUrlData = getUrl(ctx);
 
         try {
@@ -49,12 +55,27 @@ public class UrlCheckController {
             }
 
             UrlCheckRepository.save(builder.build());
-            drowPage(checkedUrlData, ctx);
         } catch (UnirestException e) {
-            System.err.println("Ошибка при обращении к стороннему сервису: " + e.getMessage());
+            log.error(e.getMessage());
+
+            messageRecord = MessageRecord.SERVICE_REQUEST_ERROR;
+        } catch (SQLException e) {
+            log.error(e.getMessage());
+
+            messageRecord = MessageRecord.BAD_REQUEST_ERROR;
         } catch (Exception e) {
-            System.err.println("Неизвестная ошибка: " + e.getMessage());
+            log.error(e.getMessage());
+
+            messageRecord = MessageRecord.UNKNOWN_ERROR;
         }
+
+        var pageBuilder = getPageBuilder(checkedUrlData, ctx);
+
+        if (messageRecord != null) {
+            pageBuilder.messageRecord(messageRecord);
+        }
+
+        ctx.render("urlChecks.jte", model("page", pageBuilder.build()));
     }
 
     private static Url getUrl(final Context ctx) throws SQLException {
@@ -65,8 +86,8 @@ public class UrlCheckController {
 
     }
 
-    private static void drowPage(Url urlData, Context ctx) throws SQLException {
-        var page = UrlDataCheckPage.builder()
+    private static UrlDataCheckPage.UrlDataCheckPageBuilder getPageBuilder(Url urlData, Context ctx) throws SQLException {
+        var pageBuilder = UrlDataCheckPage.builder()
                 .id(urlData.getId())
                 .name(urlData.getName())
                 .createdAt(urlData.getCreatedAt());
@@ -89,9 +110,9 @@ public class UrlCheckController {
                     )
                     .toList());
 
-            page.checks(urlChecksData);
+            pageBuilder.checks(urlChecksData);
         }
 
-        ctx.render("urlChecks.jte", model("page", page.build()));
+        return pageBuilder;
     }
 }

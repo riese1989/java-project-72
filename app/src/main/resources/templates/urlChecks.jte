@@ -1,9 +1,16 @@
-@import hexlet.code.dto.urls.UrlDataCheckPage
-@import hexlet.code.util.NamedRoutes
+@import hexlet.code.dto.pages.UrlDataCheckPage
+@import hexlet.code.utils.NamedRoutes
+@import java.time.format.DateTimeFormatter
 @param UrlDataCheckPage page
 
 @template.layout.page(
 content = @`
+    @if(page.getMessageRecord() != null)
+        <div class="rounded-0 m-0 alert alert-dismissible fade show alert-info" role="alert">
+            <p class="m-0">${page.getMessageRecord().getMessage()}</p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
     <div class="container-lg mt-5">
         <h1>Сайт: ${page.getName()}</h1>
 
@@ -19,7 +26,7 @@ content = @`
             </tr>
             <tr>
                 <td>Дата создания</td>
-                <td>${String.valueOf(page.getCreatedAt())}</td>
+                <td>${page.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}</td>
             </tr>
             </tbody>
         </table>
@@ -47,7 +54,7 @@ content = @`
                         <td>${check.getTitle()}</td>
                         <td>${check.getH1()}</td>
                         <td>${check.getDescription()}</td>
-                        <td>${String.valueOf(check.getDateCheck())}</td>
+                        <td>${check.getDateCheck().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))}</td>
                     </tr>
                 @endfor
             @endif

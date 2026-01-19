@@ -1,6 +1,7 @@
-package hexlet.code.dto.urls;
+package hexlet.code.dto.pages;
 
-import hexlet.code.models.MessageRecord;
+import hexlet.code.dto.urls.UrlDataDto;
+import hexlet.code.utils.MessageRecord;
 import lombok.Builder;
 import lombok.Getter;
 
