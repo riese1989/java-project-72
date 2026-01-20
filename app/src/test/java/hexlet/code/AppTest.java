@@ -46,7 +46,7 @@ class AppTest {
             var response = client.get("/");
 
             assertThat(response.code()).isEqualTo(200);
-            assertThat(response.body().string()).contains("Введите URL:");
+            assertThat(response.body().string()).contains("Проверить");
         });
     }
 
